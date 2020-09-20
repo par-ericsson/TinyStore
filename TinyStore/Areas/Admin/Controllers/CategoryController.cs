@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TinyStore.Data;
+using TinyStore.Models;
 
 namespace TinyStore.Areas.Admin.Controllers
 {
@@ -20,6 +21,26 @@ namespace TinyStore.Areas.Admin.Controllers
         public async Task<IActionResult> Index()
         {
             return View(await _context.Category.ToListAsync());
+        }
+
+        public IActionResult Create()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(Category category)
+        {
+            if (ModelState.IsValid)
+            {
+                _context.Category.Add(category);
+                await _context.SaveChangesAsync();
+
+                return RedirectToAction(nameof(Index));
+            }
+
+            return View(category);
         }
     }
 }
