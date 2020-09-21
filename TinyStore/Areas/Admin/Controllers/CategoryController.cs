@@ -42,5 +42,36 @@ namespace TinyStore.Areas.Admin.Controllers
 
             return View(category);
         }
+
+        public async Task<IActionResult> Edit(int? id)
+        {
+            if(id == null)
+            {
+                return NotFound();
+            }
+
+            var category = await _context.Category.FindAsync(id);
+            if(category == null)
+            {
+                return NotFound();
+            }
+
+            return View(category);
+        }
+
+        [HttpPost]
+        [AutoValidateAntiforgeryToken]
+        public async Task<IActionResult> Edit(Category category)
+        {
+            if (ModelState.IsValid)
+            {
+                _context.Update(category);
+                await _context.SaveChangesAsync();
+
+                return RedirectToAction(nameof(Index));
+            }
+
+            return View(category);
+        }
     }
 }
