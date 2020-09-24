@@ -105,5 +105,17 @@ namespace TinyStore.Areas.Admin.Controllers
 
             return RedirectToAction(nameof(Index));
         }
+
+        public async Task<IActionResult> Details(int? id)
+        {
+            if(id == null)
+            {
+                return NotFound();
+            }
+
+            var category = await _context.Category.FirstOrDefaultAsync(c => c.Id == id);
+
+            return View(category);
+        }
     }
 }
