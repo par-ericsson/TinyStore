@@ -35,7 +35,7 @@ namespace TinyStore.Areas.Admin.Controllers
             SubCategoryAndCategoryViewModel model = new SubCategoryAndCategoryViewModel()
             {
                 CategoryList = await _context.Category.ToListAsync(),
-                SubCategory = new Models.SubCategory(),
+                SubCategory = new SubCategory(),
                 SubCategoryList = await _context.SubCategory.OrderBy(p => p.Name)
                     .Select(p => p.Name).Distinct().ToListAsync()
             };
@@ -82,9 +82,8 @@ namespace TinyStore.Areas.Admin.Controllers
             List<SubCategory> subCategories = new List<SubCategory>();
 
             subCategories = await (from subCategory in _context.SubCategory
-                             where subCategory.CategoryId == id
-                             select subCategory).ToListAsync();
-
+                                   where subCategory.CategoryId == id
+                                   select subCategory).ToListAsync();
             return Json(new SelectList(subCategories, "Id", "Name"));
         }
 
@@ -144,6 +143,48 @@ namespace TinyStore.Areas.Admin.Controllers
             };
 
             return View(modelVM);
+        }
+
+        public async Task<IActionResult> Details(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+            var subCategory = await _context.SubCategory.Include(s => s.Category).SingleOrDefaultAsync(sc => sc.Id == id);
+            if (subCategory == null)
+            {
+                return NotFound();
+            }
+
+            return View(subCategory);
+        }
+
+        public async Task<IActionResult> Delete(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+            var subCategory = await _context.SubCategory.Include(s => s.Category).SingleOrDefaultAsync(m => m.Id == id);
+            if (subCategory == null)
+            {
+                return NotFound();
+            }
+
+            return View(subCategory);
+        }
+
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            var subCategory = await _context.SubCategory.SingleOrDefaultAsync(m => m.Id == id);
+            _context.SubCategory.Remove(subCategory);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Index));
+
         }
     }
 }

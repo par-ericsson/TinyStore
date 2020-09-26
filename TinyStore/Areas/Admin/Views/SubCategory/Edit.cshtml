@@ -1,5 +1,6 @@
 ﻿@model TinyStore.Models.ViewModels.SubCategoryAndCategoryViewModel
 @using TinyStore.Extensions
+
 @{
     ViewData["Title"] = "Edit";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -18,7 +19,7 @@
             <input type="hidden" asp-for="SubCategory.Id" />
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group row">
-                <div class="col-2">
+                <div class="col-3">
                     <label asp-for="SubCategory.CategoryId" class="col-form-label"></label>
                 </div>
                 <div class="col-5">
@@ -36,7 +37,7 @@
             </div>
             <div class="form-group row">
                 <div class="col-5 offset-3">
-                    <partial name="_EditAndBacktoListButton" model="Model.SubCategory.Id"/>
+                    <partial name="_EditAndBackToListButton" model="Model.SubCategory.Id" />
                 </div>
             </div>
         </form>
@@ -44,22 +45,25 @@
     <div class="col-3 offset-1">
         @if (Model.SubCategoryList.Count() > 0)
         {
-            <p>Existing Subcategories</p>
+            <p> Existing Subcategories: </p>
+
             <div id="SubCategoryList">
-                <ul class="list-group">
-                </ul>
+                <ul class="list-group"></ul>
             </div>
         }
     </div>
 
 
+
 </div>
 
 @section Scripts{
-    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
     <script>
+
         function updateSubCategoryList() {
-            var categorySelected = document.getElementById("ddlCategoryList").value;
+            var categorySelected = document.getElementById("ddlCategorylist").value;
 
             $list = $('#SubCategoryList');
 
@@ -68,7 +72,7 @@
                 type: 'GET',
                 dataType: 'text',
                 success: function (data) {
-                    results = Json.parse(data);
+                    results = JSON.parse(data);
                     $list.html('');
                     $list.append(' <ul class="list-group"> ');
                     for (i in results) {
@@ -76,16 +80,16 @@
                     }
                     $list.append('</ul>');
                 }
-            })
+            });
         }
 
         $(document).ready(function () {
             updateSubCategoryList();
         });
 
+        $("#ddlCategorylist").on("change", function () {
+            updateSubCategoryList();
+        });
+
     </script>
 }
-
-
-
-
