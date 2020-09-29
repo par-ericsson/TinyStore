@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TinyStore.Data;
+using TinyStore.Models;
 using TinyStore.Models.ViewModels;
 using TinyStore.Utility;
 
@@ -87,6 +88,24 @@ namespace TinyStore.Areas.Admin.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        public async Task<IActionResult> Details(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            MenuItemVM.MenuItem = await _context.MenuItem
+                .Include(m => m.Category)
+                .Include(m => m.SubCategory).SingleOrDefaultAsync(m => m.Id == id);
+
+            if (MenuItemVM.MenuItem == null)
+            {
+                return NotFound();
+            }
+
+            return View(MenuItemVM);
+        }
         public async Task<IActionResult> Edit(int? id)
         {
             if(id == null)
@@ -161,6 +180,48 @@ namespace TinyStore.Areas.Admin.Controllers
             menuItemFromDb.SubCategoryId = MenuItemVM.MenuItem.SubCategoryId;
 
             await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        public async Task<IActionResult> Delete(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            MenuItemVM.MenuItem = await _context.MenuItem
+                .Include(m => m.Category)
+                .Include(m => m.SubCategory).SingleOrDefaultAsync(m => m.Id == id);
+
+            if (MenuItemVM.MenuItem == null)
+            {
+                return NotFound();
+            }
+
+            return View(MenuItemVM);
+        }
+
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            string webRootPath = _webHostEnvironment.WebRootPath;
+            MenuItem menuItem = await _context.MenuItem.FindAsync(id);
+
+            if (menuItem != null)
+            {
+                var imagePath = Path.Combine(webRootPath, menuItem.Image.TrimStart('\\'));
+
+                if (System.IO.File.Exists(imagePath))
+                {
+                    System.IO.File.Delete(imagePath);
+                }
+                _context.MenuItem.Remove(menuItem);
+                await _context.SaveChangesAsync();
+
+            }
 
             return RedirectToAction(nameof(Index));
         }
